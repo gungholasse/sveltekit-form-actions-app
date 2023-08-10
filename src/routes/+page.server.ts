@@ -83,5 +83,37 @@ export const actions = {
 				feedback: { text: '', id: '' }
 			});
 		}
+	},
+    deleteFeedback: async ({ url }) => {
+		const feedbackId = url.searchParams.get('id');
+		try {
+			if (!feedbackId) {
+				return fail(400, {
+					type: 'delete',
+					message: 'invalid request',
+					feedback: { text: '', id: feedbackId }
+				});
+			}
+
+			await prisma.feedback.delete({
+				where: { id: feedbackId }
+			});
+
+			return {};
+		} catch (err: any) {
+			if (err.code === 'P2025') {
+				return fail(404, {
+					type: 'delete',
+					message: 'No Feedback with the Provided ID Found',
+					feedback: { text: '', id: feedbackId }
+				});
+			}
+
+			return fail(500, {
+				type: 'delete',
+				message: err.message,
+				feedback: { text: '', id: feedbackId }
+			});
+		}
 	}
 } satisfies Actions;
